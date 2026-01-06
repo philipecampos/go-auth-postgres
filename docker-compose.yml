@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    container_name: go-auth-postgres-db
+    environment:
+      POSTGRES_PASSWORD: 123456789
+    ports:
+      - "5432:5432"
+    volumes:
+      - arquivos_postgres:/var/lib/postgresql/data
+
+volumes:
+  arquivos_postgres:
+    external: true
