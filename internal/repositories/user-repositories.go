@@ -34,7 +34,7 @@ func (repo *UsersRepository) Create(ctx context.Context, user *models.User) erro
 	now := time.Now()
 	err := repo.DB.QueryRow(ctx, query, user.Username, user.Email, user.Password, now, now).Scan(&usuarioId)
 	if err != nil {
-		return fmt.Errorf("error while inserting user: %v", err)
+		return fmt.Errorf("create, error while inserting user: %v", err)
 	}
 
 	return nil
@@ -49,7 +49,7 @@ func (repo *UsersRepository) FindByID(ctx context.Context, id string) (*models.U
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("error while finding user: %v", err)
+		return nil, fmt.Errorf("FindByID, error while finding user: %v", err)
 	}
 
 	return &user, nil
@@ -58,13 +58,13 @@ func (repo *UsersRepository) FindByID(ctx context.Context, id string) (*models.U
 func (repo *UsersRepository) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	var user models.User
 
-	query := `SELECT * FROM go.users WHERE email = $1`
+	query := `SELECT id, username, password FROM go.users WHERE email = $1`
 	err := repo.DB.QueryRow(ctx, query, email).Scan(&user.ID, &user.Username, &user.Password)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("error while finding user: %v", err)
+		return nil, fmt.Errorf("FindByEmail, error while finding user: %v", err)
 	}
 	fmt.Println(user.Email)
 

@@ -71,6 +71,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
+	fmt.Println("@@@<>>>>@@")
+	fmt.Println(c.Cookie("access_token"))
 	var req struct {
 		Email    string `json:"email" binding:"required"`
 		Password string `json:"password" binding:"required"`

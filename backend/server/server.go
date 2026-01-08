@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"go-auth-postgres/internal/database"
+	"go-auth-postgres/internal/middlewares"
 	"go-auth-postgres/internal/repositories"
 	"net/http"
 	"os"
@@ -34,7 +35,7 @@ func NewServer() *http.Server {
 	}
 }
 
-func (server *Server) RegisterRoutes() http.Handler {
+func (s *Server) RegisterRoutes() http.Handler {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -44,8 +45,8 @@ func (server *Server) RegisterRoutes() http.Handler {
 		AllowCredentials: true,
 	}))
 
-	authHandler := NewAuthHandler(server.usersRepository)
-	userHandler := newUserHandler(server.usersRepository)
+	authHandler := NewAuthHandler(s.usersRepository)
+	userHandler := newUserHandler(s.usersRepository)
 
 	// Setup routes
 	authRoutes := r.Group("/api/auth")
@@ -61,6 +62,7 @@ func (server *Server) RegisterRoutes() http.Handler {
 	}
 
 	protected := r.Group("/api")
+	protected.Use(middlewares.AuthMiddleware(s.usersRepository))
 	{
 		protected.GET("/user", userHandler.GetUser)
 	}

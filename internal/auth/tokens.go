@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -16,10 +17,37 @@ func GenerateAccessToken(userID int) (string, error) {
 	claims["exp"] = time.Now().Add(15 * time.Minute).Unix()
 
 	secret := os.Getenv("ACCESS_TOKEN_SECRET")
+	fmt.Println("@@@@@@@@@@")
+	fmt.Println(secret)
 	tokenString, err := token.SignedString([]byte(secret)) // Assina o token
 	if err != nil {
 		return "", err
 	}
 
 	return tokenString, nil
+}
+
+func ValidateToken(tokenString, secretKey string) (*jwt.Token, jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validate the signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secretKey), nil
+	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if !token.Valid {
+		return nil, nil, fmt.Errorf("invalid token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, nil, fmt.Errorf("invalid token claims")
+	}
+
+	return token, claims, nil
 }

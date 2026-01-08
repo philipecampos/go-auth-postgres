@@ -18,7 +18,7 @@ func newUserHandler(userRepository repositories.UsersRepositoryInterface) *UserH
 }
 
 func (h *UserHandler) GetUser(c *gin.Context) {
-	userID, exists := c.Get("user_id")
+	userID, exists := c.Get("userID") // userID will be passed through the middleware
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "User ID not found in context"})
 	}
